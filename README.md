@@ -39,8 +39,10 @@ sit behind Vercel's login wall.
 ## Testing
 
 **Android (Chrome)**
-1. Open the site and tap **Enable notifications**, then **Allow**.
-2. Tap **Send test now**, or **Send in 5s** and lock the phone.
+1. Open the site and tap **Install app** (or use the ⋮ menu → **Install app**).
+2. Tap **Enable notifications**, then **Allow**. This works in the browser tab or in the
+   installed app.
+3. Tap **Send test now**, or **Send in 5s** and lock the phone.
 
 **iPhone / iPad (iOS 16.4+)**: on iOS, push only works from the home screen.
 1. Open the site in Safari, tap **Share** (on iOS 26, tap **•••** first), then

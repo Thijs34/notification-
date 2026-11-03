@@ -156,6 +156,16 @@ body {
   background: var(--neutral);
 }
 
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.step + .step {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
 .steps {
   margin: 0;
   padding-left: 1.3rem;

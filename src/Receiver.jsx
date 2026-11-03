@@ -15,6 +15,7 @@ export default function Receiver() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState(null);
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [installed, setInstalled] = useState(false);
 
   // Load the service worker, any existing subscription, and the server's public key.
   // Done up front so the "Enable" tap can go straight to the permission prompt (iOS needs that).
@@ -40,13 +41,16 @@ export default function Receiver() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Android/Chrome: offer an "Install app" button (optional there, push works in the browser too).
+  // Android/Chrome: capture the native install prompt so we can show our own "Install app" button.
   useEffect(() => {
     const onPrompt = (e) => {
       e.preventDefault();
       setInstallPrompt(e);
     };
-    const onInstalled = () => setInstallPrompt(null);
+    const onInstalled = () => {
+      setInstallPrompt(null);
+      setInstalled(true);
+    };
     window.addEventListener('beforeinstallprompt', onPrompt);
     window.addEventListener('appinstalled', onInstalled);
     return () => {
@@ -149,8 +153,9 @@ export default function Receiver() {
 
   async function install() {
     installPrompt.prompt();
-    await installPrompt.userChoice;
-    setInstallPrompt(null);
+    const { outcome } = await installPrompt.userChoice;
+    setInstallPrompt(null); // a prompt event can only be used once
+    if (outcome === 'accepted') setInstalled(true);
   }
 
   function onNameChange(e) {
@@ -229,19 +234,57 @@ export default function Receiver() {
       </label>
     );
 
+    const enableButton = (
+      <button className="btn primary" onClick={enable} disabled={!ready || busy}>
+        {ready ? '🔔 Enable notifications' : 'Loading…'}
+      </button>
+    );
+
+    // Android in the browser: Step 1 install, Step 2 permission (same flow as iPhone).
+    if (!subscription && device.isAndroid && !device.isStandalone) {
+      return (
+        <>
+          <div className="step">
+            <h2>Step 1: Install the app</h2>
+            {installed ? (
+              <p>
+                ✅ Installed. Open <b>Push Test</b> from your home screen, or continue right here.
+              </p>
+            ) : installPrompt ? (
+              <>
+                <p>Add Push Test to your home screen so it works like a normal app.</p>
+                <button className="btn secondary" onClick={install}>
+                  📲 Install app
+                </button>
+              </>
+            ) : (
+              <p>
+                Open the browser menu <b>⋮</b> and tap <b>Install app</b> (or{' '}
+                <b>Add to Home screen</b>). Already installed? Open it from your home screen.
+              </p>
+            )}
+          </div>
+          <div className="step">
+            <h2>Step 2: Enable notifications</h2>
+            <p>
+              Tap the button and choose <b>Allow</b>.
+            </p>
+            {nameField}
+            {enableButton}
+          </div>
+        </>
+      );
+    }
+
     if (!subscription) {
       return (
         <>
-          <h2>{device.isIOS ? 'Step 2: Enable notifications' : 'Enable notifications'}</h2>
+          <h2>{device.isMobile ? 'Step 2: Enable notifications' : 'Enable notifications'}</h2>
           <p>
-            {device.isIOS
-              ? 'iOS only asks for permission after you tap the button below.'
-              : 'Tap the button and allow notifications when your browser asks.'}
+            Tap the button and choose <b>Allow</b> when {device.isIOS ? 'iOS' : 'your browser'} asks.
           </p>
           {nameField}
-          <button className="btn primary" onClick={enable} disabled={!ready || busy}>
-            {ready ? '🔔 Enable notifications' : 'Loading…'}
-          </button>
+          {enableButton}
           {installPrompt && (
             <button className="btn ghost" onClick={install}>
               Install as app (optional)
