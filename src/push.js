@@ -16,6 +16,23 @@ export const device = {
   platform: isIOS ? (/iPhone|iPod/.test(ua) ? 'iPhone' : 'iPad') : isAndroid ? 'Android' : 'Desktop',
 };
 
+// Android/Chrome install prompt. Caught at page load (before React renders).
+// No preventDefault(), so Chrome can also show its own install popup.
+let installEvent = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  installEvent = e;
+});
+
+/** Opens Chrome's install dialog. Returns 'accepted', 'dismissed' or 'unavailable'. */
+export async function installApp() {
+  if (!installEvent) return 'unavailable';
+  const e = installEvent;
+  installEvent = null; // can only be used once
+  e.prompt();
+  const { outcome } = await e.userChoice;
+  return outcome;
+}
+
 /** VAPID public keys are base64url strings; the Push API wants bytes. */
 export function urlBase64ToUint8Array(base64) {
   const padded = (base64 + '='.repeat((4 - (base64.length % 4)) % 4))
@@ -35,10 +52,7 @@ export async function api(path, { method = 'GET', body, headers = {} } = {}) {
   try {
     data = JSON.parse(await res.text());
   } catch {
-    throw Object.assign(
-      new Error('API not reachable. Run "vercel dev" locally, or deploy to Vercel.'),
-      { status: res.status },
-    );
+    throw Object.assign(new Error('Server not reachable.'), { status: res.status });
   }
   if (!res.ok) {
     throw Object.assign(new Error(data.error || `Request failed (${res.status})`), { status: res.status });

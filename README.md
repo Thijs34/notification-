@@ -39,17 +39,16 @@ sit behind Vercel's login wall.
 ## Testing
 
 **Android (Chrome)**
-1. Open the site and tap **Install app** (or use the ⋮ menu → **Install app**).
-2. Tap **Enable notifications**, then **Allow**. This works in the browser tab or in the
-   installed app.
-3. Tap **Send test now**, or **Send in 5s** and lock the phone.
+1. Open the site and tap **Install app**, then open Push Test from the home screen.
+2. Tap **Allow notifications**, then **Allow**.
+3. Tap **Send test notification**. It arrives after 5 seconds.
 
 **iPhone / iPad (iOS 16.4+)**: on iOS, push only works from the home screen.
 1. Open the site in Safari, tap **Share** (on iOS 26, tap **•••** first), then
    **Add to Home Screen**.
 2. Open **Push Test** from the home screen.
-3. Tap **Enable notifications**, then **Allow**.
-4. Tap **Send test now**, or **Send in 5s** and lock the phone.
+3. Tap **Allow notifications**, then **Allow**.
+4. Tap **Send test notification**. It arrives after 5 seconds.
 
 **From your PC**: open the same URL and go to the **Send** tab. Enter the admin password,
 type a message, and press **Send** (or Ctrl + Enter). Every phone that enabled
@@ -62,9 +61,9 @@ notifications appears in the list.
 - **Nothing arrives on Android:** make sure Chrome's notifications are allowed in
   Android Settings → Apps → Chrome → Notifications.
 - **You changed the VAPID keys:** every old subscription stops working. On each
-  phone, tap **Turn off notifications** and then **Enable** again.
-- **The phone shows "Listed on Send tab: No (no database)":** Redis isn't connected
-  yet (step 3 above), or you haven't redeployed since connecting it.
+  phone, tap **Turn off** and then **Allow notifications** again.
+- **A phone doesn't show up on the Send tab:** Redis isn't connected yet (step 3
+  above), or you haven't redeployed since connecting it.
 
 ## Local development
 
